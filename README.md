@@ -40,7 +40,7 @@ knife.rb をバージョン管理システムにコミットしている場合 (
 アクセスキー／シークレットキーは knife サブコマンドの -A (--nc-access-key) と -K (--nc-secret-key) オプションで指定することもできます。
 
 	# provision a new mini instance
-	knife ec2 server create -r 'role[webserver]' -I 1 -T mini -A 'Your NIFTY Cloud Access Key ID' -K "Your AWS Secret Access Key"
+	knife nc server create -r 'role[webserver]' -I 1 -T mini -A 'Your NIFTY Cloud Access Key ID' -K "Your AWS Secret Access Key"
 
 さらに下記のオプションが knife.rb に設定可能です。
 
