@@ -79,7 +79,7 @@ class Chef
             confirm("Do you really want to delete this server")
 
             print "\n#{ui.color("Waiting for server to shutdown", :magenta)}"
-	    connection.stop_instances(:instance_id => instance_id, :force => true)
+            connection.stop_instances(:instance_id => instance_id, :force => true)
             while server.instanceState.name != 'stopped'
               print "."
               server = connection.describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first

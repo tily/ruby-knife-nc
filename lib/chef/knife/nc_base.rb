@@ -53,7 +53,7 @@ class Chef
           connection = NIFTY::Cloud::Base.new(
             :access_key => Chef::Config[:knife][:nc_access_key],
             :secret_key => Chef::Config[:knife][:nc_secret_key]
-	  )
+        )
         end
       end
 

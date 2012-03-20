@@ -257,7 +257,7 @@ class Chef
 
         if @name_args.empty?
           errors << "You have not provided a valid instance ID."
-	end
+        end
 
         if config[:security_group].nil?
           errors << "You have not provided a valid Security Group."

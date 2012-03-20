@@ -38,7 +38,7 @@ class Chef
           ui.color('State', :bold)
         ]
         connection.describe_images.imagesSet.item.each do |image|
-	  image_list << image.imageId
+          image_list << image.imageId
           image_list << image.name
           image_list << "#{image.imageOwnerId} (#{image.imageOwnerAlias})"
           image_list << "#{image.imageState} (#{image.isPublic ? 'public' : 'private'})"

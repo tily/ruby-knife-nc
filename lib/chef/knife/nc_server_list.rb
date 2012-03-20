@@ -43,8 +43,8 @@ class Chef
         ]
         connection.describe_instances.reservationSet.item.each do |instance|
           server = instance.instancesSet.item.first
-	  group = instance.groupSet
-	  server_list << server.instanceId
+          group = instance.groupSet
+          server_list << server.instanceId
           server_list << server.ipAddress.to_s
           server_list << server.privateIpAddress.to_s
           server_list << server.instanceType
