@@ -1,8 +1,6 @@
 #
-# Author:: Adam Jacob (<adam@opscode.com>)
-# Author:: Daniel DeLeo (<dan@opscode.com>)
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2008, 2010 Opscode, Inc.
+# Author:: tily (<tidnlyam@gmail.com>)
+# Copyright:: Copyright (c) 2012 tily
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +28,7 @@ begin
 
   Rake::RDocTask.new do |rdoc|
     rdoc.title = "Chef Ruby API Documentation"
-    rdoc.main = "README.rdoc"
+    rdoc.main = "README.md"
     rdoc.options << '--fmt' << 'shtml' # explictly set shtml generator
     rdoc.template = 'direct' # lighter template
     rdoc.rdoc_files.include("README.rdoc", "LICENSE", "spec/tiny_server.rb", "lib/**/*.rb")

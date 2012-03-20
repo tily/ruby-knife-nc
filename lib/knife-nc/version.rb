@@ -1,6 +1,6 @@
 module Knife
-  module Ec2
-    VERSION = "0.5.11"
+  module Nc
+    VERSION = "0.0.0"
     MAJOR, MINOR, TINY = VERSION.split('.')
   end
 end

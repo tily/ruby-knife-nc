@@ -1,7 +1,6 @@
 #
-# Author:: Adam Jacob (<adam@opscode.com>)
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2009-2011 Opscode, Inc.
+# Author:: tily (<tidnlyam@gmail.com>)
+# Copyright:: Copyright (c) 2012 tily
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,7 @@
 # limitations under the License.
 #
 
-require 'chef/knife/ec2_base'
+require 'chef/knife/nc_base'
 
 # These two are needed for the '--purge' deletion case
 require 'chef/node'
@@ -25,18 +24,18 @@ require 'chef/api_client'
 
 class Chef
   class Knife
-    class Ec2ServerDelete < Knife
+    class NcServerDelete < Knife
 
-      include Knife::Ec2Base
+      include Knife::NcBase
 
-      banner "knife ec2 server delete SERVER [SERVER] (options)"
+      banner "knife nc server delete INSTANCE_ID_1 [INSTANCE_ID_2 ...] (options)"
 
       option :purge,
         :short => "-P",
         :long => "--purge",
         :boolean => true,
         :default => false,
-        :description => "Destroy corresponding node and client on the Chef Server, in addition to destroying the EC2 node itself.  Assumes node and client have the same name as the server (if not, add the '--node-name' option)."
+        :description => "Destroy corresponding node and client on the Chef Server, in addition to destroying the NIFTY Cloud node itself.  Assumes node and client have the same name as the server (if not, add the '--node-name' option)."
 
       option :chef_node_name,
         :short => "-N NAME",
@@ -65,25 +64,31 @@ class Chef
         @name_args.each do |instance_id|
 
           begin
-            server = connection.servers.get(instance_id)
+            server = connection.describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
 
-            msg_pair("Instance ID", server.id)
-            msg_pair("Flavor", server.flavor_id)
-            msg_pair("Image", server.image_id)
-            msg_pair("Region", connection.instance_variable_get(:@region))
-            msg_pair("Availability Zone", server.availability_zone)
-            msg_pair("Security Groups", server.groups.join(", "))
-            msg_pair("SSH Key", server.key_name)
+            msg_pair("Instance ID", server.instanceId)
+            msg_pair("Instance Type", server.instanceType)
+            msg_pair("Image ID", server.imageId)
+            #msg_pair("Security Groups", server.groups.join(", "))
+            msg_pair("SSH Key", server.keyName)
             msg_pair("Root Device Type", server.root_device_type)
-            msg_pair("Public DNS Name", server.dns_name)
-            msg_pair("Public IP Address", server.public_ip_address)
-            msg_pair("Private DNS Name", server.private_dns_name)
-            msg_pair("Private IP Address", server.private_ip_address)
+            msg_pair("Public IP Address", server.ipAddress)
+            msg_pair("Private IP Address", server.privateIpAddress)
 
             puts "\n"
             confirm("Do you really want to delete this server")
 
-            server.destroy
+            print "\n#{ui.color("Waiting for server to shutdown", :magenta)}"
+	    connection.stop_instances(:instance_id => instance_id, :force => true)
+            while server.instanceState.name != 'stopped'
+              print "."
+              server = connection.describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+              sleep 5
+            end
+
+            puts("done\n")
+
+            connection.terminate_instances(:instance_id => instance_id)
 
             ui.warn("Deleted server #{server.id}")
 

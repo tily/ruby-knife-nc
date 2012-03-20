@@ -1,7 +1,6 @@
 #
-# Author:: Adam Jacob (<adam@opscode.com>)
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2010-2011 Opscode, Inc.
+# Author:: tily (<tidnlyam@gmail.com>)
+# Copyright:: Copyright (c) 2012 tily
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +16,15 @@
 # limitations under the License.
 #
 
-require 'chef/knife/ec2_base'
+require 'chef/knife/nc_base'
 
 class Chef
   class Knife
-    class Ec2ServerList < Knife
+    class NcServerList < Knife
 
-      include Knife::Ec2Base
+      include Knife::NcBase
 
-      banner "knife ec2 server list (options)"
+      banner "knife nc server list (options)"
 
       def run
         $stdout.sync = true
@@ -39,21 +38,23 @@ class Chef
           ui.color('Flavor', :bold),
           ui.color('Image', :bold),
           ui.color('SSH Key', :bold),
-          ui.color('Security Groups', :bold),
+          ui.color('Security Group', :bold),
           ui.color('State', :bold)
         ]
-        connection.servers.all.each do |server|
-          server_list << server.id.to_s
-          server_list << server.public_ip_address.to_s
-          server_list << server.private_ip_address.to_s
-          server_list << server.flavor_id.to_s
-          server_list << server.image_id.to_s
-          server_list << server.key_name.to_s
-          server_list << server.groups.join(", ")
+        connection.describe_instances.reservationSet.item.each do |instance|
+          server = instance.instancesSet.item.first
+	  group = instance.groupSet
+	  server_list << server.instanceId
+          server_list << server.ipAddress.to_s
+          server_list << server.privateIpAddress.to_s
+          server_list << server.instanceType
+          server_list << server.imageId
+          server_list << server.keyName
+          server_list << (group ? group.item.first.groupId : '')
           server_list << begin
-            state = server.state.to_s.downcase
+            state = server.instanceState.name
             case state
-            when 'shutting-down','terminated','stopping','stopped'
+            when 'sotopped', 'warning', 'waiting', 'creating', 'suspending', 'uploading', 'import_error'
               ui.color(state, :red)
             when 'pending'
               ui.color(state, :yellow)
