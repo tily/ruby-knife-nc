@@ -25,7 +25,7 @@ knife-ec2 と同じように、インスタンスを作成した上で Chef の�
 
 # 設定
 
-NIFTY CLoud REST API と通信するため、knife コマンドにアクセスキー／シークレットキーを教えてやる必要があります。
+NIFTY Cloud REST API と通信するため、knife コマンドにアクセスキー／シークレットキーを教えてやる必要があります。
 knife.rb に設定するのが一番簡単でしょう。
 
 	knife[:nc_access_key] = "Your NIFTY Cloud Access Key"
@@ -40,7 +40,7 @@ knife.rb をバージョン管理システムにコミットしている場合 (
 アクセスキー／シークレットキーは knife サブコマンドの -A (--nc-access-key) と -K (--nc-secret-key) オプションで指定することもできます。
 
 	# provision a new mini instance
-	knife nc server create -r 'role[webserver]' -I 1 -T mini -A 'Your NIFTY Cloud Access Key ID' -K "Your NIFTY Cloud Secret Key"
+	knife nc server create -r 'role[webserver]' -I 1 -T mini -A 'Your NIFTY Cloud Access Key' -K "Your NIFTY Cloud Secret Key"
 
 さらに下記のオプションが knife.rb に設定可能です。
 
