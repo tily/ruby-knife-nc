@@ -84,4 +84,5 @@ knife nc server create コマンドの -I オプションに渡す Image ID を�
 
 ## ライセンス
 
-Opscode Chef のプロダクトに準じて Apache Lisence, Version 2.0 を適用します。
+[knife-ec2](https://github.com/opscode/knife-ec2) をベースに NIFTY Cloud 向けに修正を加えたものです。
+オリジナルに準じて Apache Lisence, Version 2.0 を適用します。
