@@ -100,7 +100,7 @@ class Chef
         :long => "--distro DISTRO",
         :description => "Bootstrap a distro using a template",
         :proc => Proc.new { |d| Chef::Config[:knife][:nc_distro] = d },
-        :default => "centos5-gems"
+        :default => "nc-centos5-gems"
 
       option :nc_template_file,
         :long => "--template-file TEMPLATE",
