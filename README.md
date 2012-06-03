@@ -96,7 +96,6 @@ knife bootstrap からこのスクリプトを利用するには下記のよう�
 
 ## TODO
 
- * nc server create の -U オプション (起動スクリプト指定) の動作確認ができていない
  * nc server create の --template-file オプション (ブートストラップ用テンプレート指定) の動作確認ができていない
 
 ## ライセンス
