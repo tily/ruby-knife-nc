@@ -76,6 +76,12 @@ class Chef
         :long => "--ssh-password PASSWORD",
         :description => "The ssh password"
 
+      option :ssh_passphrase,
+        :short => "-R PASSPHRASE",
+        :long => "--ssh-passphrase PASSPHRASE",
+        :description => "The ssh passphrase",
+        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_passphrase] = key }
+
       option :ssh_locally,
         :short => "-L",
         :long => "--ssh-locally",
@@ -235,6 +241,7 @@ class Chef
         bootstrap.config[:run_list] = config[:run_list]
         bootstrap.config[:ssh_user] = config[:ssh_user]
         bootstrap.config[:ssh_password] = config[:ssh_password]
+        bootstrap.config[:ssh_passphrase] = config[:ssh_passphrase]
         bootstrap.config[:identity_file] = config[:identity_file]
         bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.instanceId
         bootstrap.config[:prerelease] = config[:prerelease]
