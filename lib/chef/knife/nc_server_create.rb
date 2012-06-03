@@ -105,8 +105,7 @@ class Chef
         :short => "-d DISTRO",
         :long => "--distro DISTRO",
         :description => "Bootstrap a distro using a template",
-        :proc => Proc.new { |d| Chef::Config[:knife][:nc_distro] = d },
-        :default => "nc-centos5-gems"
+        :proc => Proc.new { |d| Chef::Config[:knife][:nc_distro] = d }
 
       option :nc_template_file,
         :long => "--template-file TEMPLATE",
@@ -230,7 +229,20 @@ class Chef
         bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.instanceId
         bootstrap.config[:prerelease] = config[:prerelease]
         bootstrap.config[:bootstrap_version] = locate_config_value(:nc_bootstrap_version)
-        bootstrap.config[:distro] = locate_config_value(:nc_distro)
+
+        image_id = locate_config_value(:nc_image_id)
+	if locate_config_value(:nc_distro)
+          bootstrap.config[:distro] = locate_config_value(:nc_distro)
+        elsif %w(1 2 6 7 13 14).include?(image_id)
+          bootstrap.config[:distro] = 'nc-centos5-gems'
+        elsif image_id == '17'
+          bootstrap.config[:distro] = 'ubuntu10.04-gems'
+        elsif image_id == '21'
+          bootstrap.config[:distro] = 'nc-centos6-gems'
+	else
+          bootstrap.config[:distro] = 'nc-centos5-gems'
+        end
+
         bootstrap.config[:use_sudo] = true unless config[:ssh_user] == 'root'
         bootstrap.config[:template_file] = locate_config_value(:nc_template_file)
         bootstrap.config[:environment] = config[:environment]
