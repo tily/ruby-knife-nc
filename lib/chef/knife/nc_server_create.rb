@@ -176,22 +176,6 @@ class Chef
         puts "\n"
         confirm("Do you really want to create this server")
 
-        # monkey patch NIFTY::Cloud::Base (ignore password option and enable user data)
-        connection.instance_eval do
-          def run_instances(options)
-            options[:password] = 'ignoreme'
-            @user_data = options[:user_data]
-            super(options)
-          end
-          def response_generator(params)
-            params.delete('Password') if params['Password'] == 'ignoreme'
-            if @user_data
-              params['UserData'] = extract_user_data(:user_data => @user_data, :base64_encoded => true)
-              params['UserData.Encoding'] = 'base64'
-            end
-            super(params)
-          end
-        end
         server = connection.run_instances(create_server_def).instancesSet.item.first
 
         msg_pair("Instance ID", server.instanceId)
@@ -293,7 +277,7 @@ class Chef
 
         if Chef::Config[:knife][:nc_user_data]
           begin
-            server_def.merge!(:user_data => File.read(Chef::Config[:knife][:nc_user_data]))
+            server_def.merge!(:user_data => File.read(locate_config_value(:nc_user_data)))
           rescue
             ui.warn("Cannot read #{Chef::Config[:knife][:nc_user_data]}: #{$!.inspect}. Ignoring option.")
           end
