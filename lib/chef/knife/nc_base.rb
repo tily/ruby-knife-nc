@@ -15,8 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+$:.unshift(File.dirname(__FILE__) + '../../') unless $:.include?(File.dirname(__FILE__) + '../../')
 require 'chef/knife'
+require 'knife-nc/chef_extensions'
+require 'knife-nc/nifty_cloud_sdk_extensions'
 
 class Chef
   class Knife

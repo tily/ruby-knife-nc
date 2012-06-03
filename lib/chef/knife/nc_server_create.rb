@@ -76,6 +76,12 @@ class Chef
         :long => "--ssh-password PASSWORD",
         :description => "The ssh password"
 
+      option :ssh_passphrase,
+        :short => "-R PASSPHRASE",
+        :long => "--ssh-passphrase PASSPHRASE",
+        :description => "The ssh passphrase",
+        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_passphrase] = key }
+
       option :ssh_locally,
         :short => "-L",
         :long => "--ssh-locally",
@@ -99,8 +105,7 @@ class Chef
         :short => "-d DISTRO",
         :long => "--distro DISTRO",
         :description => "Bootstrap a distro using a template",
-        :proc => Proc.new { |d| Chef::Config[:knife][:nc_distro] = d },
-        :default => "centos5-gems"
+        :proc => Proc.new { |d| Chef::Config[:knife][:nc_distro] = d }
 
       option :nc_template_file,
         :long => "--template-file TEMPLATE",
@@ -170,22 +175,6 @@ class Chef
         puts "\n"
         confirm("Do you really want to create this server")
 
-        # monkey patch NIFTY::Cloud::Base (ignore password option and enable user data)
-        connection.instance_eval do
-          def run_instances(options)
-            options[:password] = 'ignoreme'
-            @user_data = options[:user_data]
-            super(options)
-          end
-          def response_generator(params)
-            params.delete('Password') if params['Password'] == 'ignoreme'
-            if @user_data
-              params['UserData'] = extract_user_data(:user_data => @user_data, :base64_encoded => true)
-              params['UserData.Encoding'] = 'base64'
-            end
-            super(params)
-          end
-        end
         server = connection.run_instances(create_server_def).instancesSet.item.first
 
         msg_pair("Instance ID", server.instanceId)
@@ -235,11 +224,25 @@ class Chef
         bootstrap.config[:run_list] = config[:run_list]
         bootstrap.config[:ssh_user] = config[:ssh_user]
         bootstrap.config[:ssh_password] = config[:ssh_password]
+        bootstrap.config[:ssh_passphrase] = config[:ssh_passphrase]
         bootstrap.config[:identity_file] = config[:identity_file]
         bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.instanceId
         bootstrap.config[:prerelease] = config[:prerelease]
         bootstrap.config[:bootstrap_version] = locate_config_value(:nc_bootstrap_version)
-        bootstrap.config[:distro] = locate_config_value(:nc_distro)
+
+        image_id = locate_config_value(:nc_image_id)
+	if locate_config_value(:nc_distro)
+          bootstrap.config[:distro] = locate_config_value(:nc_distro)
+        elsif %w(1 2 6 7 13 14).include?(image_id)
+          bootstrap.config[:distro] = 'nc-centos5-gems'
+        elsif image_id == '17'
+          bootstrap.config[:distro] = 'ubuntu10.04-gems'
+        elsif image_id == '21'
+          bootstrap.config[:distro] = 'nc-centos6-gems'
+	else
+          bootstrap.config[:distro] = 'nc-centos5-gems'
+        end
+
         bootstrap.config[:use_sudo] = true unless config[:ssh_user] == 'root'
         bootstrap.config[:template_file] = locate_config_value(:nc_template_file)
         bootstrap.config[:environment] = config[:environment]
@@ -286,7 +289,7 @@ class Chef
 
         if Chef::Config[:knife][:nc_user_data]
           begin
-            server_def.merge!(:user_data => File.read(Chef::Config[:knife][:nc_user_data]))
+            server_def.merge!(:user_data => File.read(locate_config_value(:nc_user_data)))
           rescue
             ui.warn("Cannot read #{Chef::Config[:knife][:nc_user_data]}: #{$!.inspect}. Ignoring option.")
           end
