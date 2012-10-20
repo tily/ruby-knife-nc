@@ -1,4 +1,5 @@
 source "http://rubygems.org"
 
-# Specify your gem's dependencies in knife-rackspace.gemspec
+gem "nifty-cloud-sdk", ">= 1.7"
+
 gemspec

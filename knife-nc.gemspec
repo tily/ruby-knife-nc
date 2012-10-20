@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.summary = "NIFTY Cloud Support for Chef's Knife Command"
   s.description = s.summary
   s.extra_rdoc_files = ["README.md", "LICENSE" ]
+  s.add_dependency "nifty-cloud-sdk", ">= 1.7"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
