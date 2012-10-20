@@ -41,25 +41,28 @@ class Chef
           ui.color('Security Group', :bold),
           ui.color('State', :bold)
         ]
-        connection.describe_instances.reservationSet.item.each do |instance|
-          server = instance.instancesSet.item.first
-          group = instance.groupSet
-          server_list << server.instanceId
-          server_list << server.ipAddress.to_s
-          server_list << server.privateIpAddress.to_s
-          server_list << server.instanceType
-          server_list << server.imageId
-          server_list << server.keyName
-          server_list << (group ? group.item.first.groupId : '')
-          server_list << begin
-            state = server.instanceState.name
-            case state
-            when 'sotopped', 'warning', 'waiting', 'creating', 'suspending', 'uploading', 'import_error'
-              ui.color(state, :red)
-            when 'pending'
-              ui.color(state, :yellow)
-            else
-              ui.color(state, :green)
+        set = connection.describe_instances.reservationSet
+        if set
+          set.item.each do |instance|
+            server = instance.instancesSet.item.first
+            group = instance.groupSet
+            server_list << server.instanceId
+            server_list << server.ipAddress.to_s
+            server_list << server.privateIpAddress.to_s
+            server_list << server.instanceType
+            server_list << server.imageId
+            server_list << server.keyName
+            server_list << (group ? group.item.first.groupId : '')
+            server_list << begin
+              state = server.instanceState.name
+              case state
+              when 'sotopped', 'warning', 'waiting', 'creating', 'suspending', 'uploading', 'import_error'
+                ui.color(state, :red)
+              when 'pending'
+                ui.color(state, :yellow)
+              else
+                ui.color(state, :green)
+              end
             end
           end
         end
