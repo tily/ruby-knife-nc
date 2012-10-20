@@ -42,6 +42,11 @@ class Chef
         :long => "--node-name NAME",
         :description => "The name of the node and client to delete, if it differs from the server name.  Only has meaning when used with the '--purge' option."
 
+      option :force,
+        :long => "--force",
+        :default => false,
+        :description => "Force to delete server by changing the server's disableApiTermination attribute to false."
+
       # Extracted from Chef::Knife.delete_object, because it has a
       # confirmation step built in... By specifying the '--purge'
       # flag (and also explicitly confirming the server destruction!)
@@ -89,6 +94,22 @@ class Chef
               puts("done\n")
             end
 
+            attribute = connection.describe_instance_attribute(:instance_id => instance_id, :attribute => 'disableApiTermination')
+            if attribute.disableApiTermination.value != 'false'
+              if config[:force] == false
+                ui.error("Server's 'disableApiTermination' attribute is true. Use --force option to delete server.")
+                exit 1
+              else
+                print "\n#{ui.color("Enabling API termination for server", :magenta)}"
+                connection.modify_instance_attribute(:instance_id => instance_id, :attribute => 'disableApiTermination', :value => 'false')
+                while attribute.disableApiTermination.value != 'false'
+                  print "."
+                  attribute = connection.describe_instance_attribute(:instance_id => instance_id, :attribute => 'disableApiTermination')
+                  sleep 5
+                end
+                puts("done\n")
+              end
+            end
 
             connection.terminate_instances(:instance_id => instance_id)
 
