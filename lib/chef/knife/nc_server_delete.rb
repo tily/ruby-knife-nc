@@ -78,15 +78,17 @@ class Chef
             puts "\n"
             confirm("Do you really want to delete this server")
 
-            print "\n#{ui.color("Waiting for server to shutdown", :magenta)}"
-            connection.stop_instances(:instance_id => instance_id, :force => true)
-            while server.instanceState.name != 'stopped'
-              print "."
-              server = connection.describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
-              sleep 5
+            if server.instanceState.name != 'stopped'
+              print "\n#{ui.color("Waiting for server to shutdown", :magenta)}"
+              connection.stop_instances(:instance_id => instance_id, :force => true)
+              while server.instanceState.name != 'stopped'
+                print "."
+                server = connection.describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+                sleep 5
+              end
+              puts("done\n")
             end
 
-            puts("done\n")
 
             connection.terminate_instances(:instance_id => instance_id)
 
